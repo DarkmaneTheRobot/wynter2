@@ -42,7 +42,7 @@ def get_prefix(bot,msg):
         return commands.when_mentioned_or(prefix)(bot,msg)
         
 
-client = commands.Bot(command_prefix=get_prefix)
+client = commands.Bot(command_prefix=get_prefix, case_insensitive = True)
 
 @client.command(name='prefix', help= 'Sets server prefix')
 @commands.has_guild_permissions(manage_guild = True)
@@ -63,7 +63,7 @@ async def test(ctx, prefix):
     except Exception as err:
         print(err)
         prefix = '!'
-        return await ctx.send(f"My current prefix is {prefix} - I was unable to change it at this time.")
+        return await ctx.send(f"My current prefix is {prefix} - I was unable to change it at this time. \nError: {err}")
 
 @client.event
 async def on_ready():
@@ -73,6 +73,8 @@ async def on_ready():
 
 @client.event
 async def on_message(msg):
+    if msg.author.bot:
+        return
     if msg.content== 'f':
         try:
             with connection.cursor() as cursor:
@@ -86,6 +88,22 @@ async def on_message(msg):
                 if data == 1:
                     embed = discord.Embed(title = "Respects have been paid!", description = f"{msg.author.mention} has paid respects" , color=0x00ff00)
                     embed.set_image(url = "https://i.imgur.com/hOnGcgu.png")
+                    return await msg.channel.send(embed = embed)
+        except Exception as err:
+            print(err)
+    if msg.content== 'x':
+        try:
+            with connection.cursor() as cursor:
+                # Read a single record
+                sql = "SELECT `enablefandx` from guilds WHERE `id`=%s"
+                cursor.execute(sql, (msg.guild.id,))
+                result = cursor.fetchone()
+                result = json.dumps(result,sort_keys=True)
+                result = json.loads(result)
+                data = result['enablefandx']
+                if data == 1:
+                    embed = discord.Embed(title = "Serious doubts are to be had!", description = f"{msg.author.mention} very much has doubts about this." , color=0x00ff00)
+                    embed.set_image(url = "https://i.kym-cdn.com/entries/icons/mobile/000/023/021/e02e5ffb5f980cd8262cf7f0ae00a4a9_press-x-to-doubt-memes-memesuper-la-noire-doubt-meme_419-238.jpg")
                     return await msg.channel.send(embed = embed)
         except Exception as err:
             print(err)
@@ -103,10 +121,11 @@ async def on_message(msg):
         except Exception as err:
             print(err)
             return await msg.channel.send("I could not get the prefix at this time. Most likely a database error occured. Please try `!`")
-        
+
+    
     await client.process_commands(msg)
 
-initial_extensions = ['info', 'fun']
+initial_extensions = ['info', 'fun', 'meme', 'moderation', 'nsfw']
 
 if __name__ == "__main__":
     for extension in initial_extensions:
@@ -116,6 +135,101 @@ if __name__ == "__main__":
             exc = '{}:{}'.format(type(e).__name__,e)
             print('Failed to load extension {}\n{}'.format(extension,exc))
 
+@client.event
+async def on_message_delete(message):
+    if message.author.bot:
+        return
+    embed = discord.Embed(title = "Message Deleted!", description = f"{message.content}" , color=0x00ff00)
+    embed.set_footer(text = f'Wynter 2.0 | Message sent by {message.author.display_name}')
+    channel = discord.utils.get(message.guild.text_channels, name='message_logs')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_message_edit(oldmessage, newmessage):
+    if oldmessage.author.bot:
+        return
+    embed = discord.Embed(title = "Message Edited!", description = f"Original Message: \n{oldmessage.content} \n\nNew Message: \n{newmessage.content}" , color=0x00ff00)
+    embed.set_footer(text = f'Wynter 2.0 | Message sent by {oldmessage.author.display_name}')
+    channel = discord.utils.get(oldmessage.guild.text_channels, name='message_logs')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_guild_channel_delete(channel):
+    embed = discord.Embed(title = "Guild Channel Deleted!", description = f"Channel: {channel.name}" , color=0x00ff00)
+    embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(channel.guild.text_channels, name='channel_logging')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_guild_channel_create(channel):
+    embed = discord.Embed(title = "Guild Channel Created!", description = f"Channel: {channel.mention}" , color=0x00ff00)
+    embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(channel.guild.text_channels, name='channel_logging')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_guild_join(guild):
+    try:
+        with connection.cursor() as cursor:
+            # Read a single record
+            sql = "INSERT INTO `guilds` (id,name) VALUES (%s, %s)"
+            cursor.execute(sql, (guild.id,guild.name,))
+            connection.commit()
+            sql = "SELECT `prefix` from guilds WHERE `id`=%s"
+            cursor.execute(sql, (guild.id,))
+            result = cursor.fetchone()
+            result = json.dumps(result,sort_keys=True)
+            result = json.loads(result)
+            prefix = result['prefix']
+            return print(f"Sucess! Added {guild.name} to the database with a prefix of {prefix}!")
+    except Exception as err:
+        print(f"{err} when adding {guild.name} to the database")
+
+@client.event
+async def on_guild_update(before,after):
+    if before.name == after.name:
+        return
+    try:
+        with connection.cursor() as cursor:
+            # Read a single record
+            sql = "UPDATE `guilds` SET `name` = %s WHERE `id` = %s"
+            cursor.execute(sql, (after.id,after.name,))
+            connection.commit()
+            sql = "SELECT `prefix` from guilds WHERE `id`=%s"
+            cursor.execute(sql, (after.id,))
+            result = cursor.fetchone()
+            result = json.dumps(result,sort_keys=True)
+            result = json.loads(result)
+            prefix = result['prefix']
+            return print(f"Sucess! Updated {after.name} in the database with a prefix of {prefix}!")
+    except Exception as err:
+        print(f"{err} when updating {after.name} in the database")
+
+@client.event
+async def on_guild_remove(guild):
+    try:
+        with connection.cursor() as cursor:
+            # Read a single record
+            sql = "DELETE FROM `guilds` WHERE `id` = %s"
+            cursor.execute(sql, (guild.id,))
+            connection.commit()
+            return print(f"Sucess! Removed {guild.name} from the database!")
+    except Exception as err:
+        print(f"{err} when removing {guild.name} from the database")
+
+@client.event
+async def on_guild_channel_update(before, after):
+    if not before.topic == after.topic:
+        embed = discord.Embed(title = "Channel Topic Edited!", description = f"Previous Topic: \n{before.topic} \n\nNew Topic:\n{after.topic} \n" , color=0x00ff00)
+        embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069 | Channel: {after.name}')
+        channel = discord.utils.get(before.guild.text_channels, name='channel_logging')
+        await channel.send(embed = embed)
+
+    if not before.name == after.name:
+        embed = discord.Embed(title = "Channel Name Edited!", description = f"Previous Name: \n{before.name} \n\nNew Name:\n{after.name} ({after.mention}) \n" , color=0x00ff00)
+        embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
+        channel = discord.utils.get(before.guild.text_channels, name='channel_logging')
+        await channel.send(embed = embed)
 
 @client.event
 async def on_command_error(ctx,err):
@@ -130,4 +244,9 @@ async def on_command_error(ctx,err):
         embed.set_thumbnail(url = "https://freeiconshop.com/wp-content/uploads/edd/cross-flat.png")
         embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
         return await ctx.send(ctx.message.author.mention,embed = embed)
+    if isinstance(err, commands.MissingRequiredArgument):
+            embed = discord.Embed(title = "Missing argument!", description = "Hey, you're missing an argument in this command! \n\nCommands like hug are executed like !hug <user(s)>" , color=0x00ff00)
+            embed.set_thumbnail(url = "https://freeiconshop.com/wp-content/uploads/edd/cross-flat.png")
+            embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
+            return await ctx.send(ctx.message.author.mention,embed = embed)
 client.run(TOKEN)
