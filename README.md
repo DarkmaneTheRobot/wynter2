@@ -18,6 +18,10 @@ $ cd Wynter
 $ python3 -m pip install -r requirements.txt 
 
 IF SUCCESSFUL:
+$ mv example.env .env
+$ nano .ev
+IN NANO, edit the values to match your config.
+CTRL X to save.
 $ python3 index.py
 
 IF NOT: 
