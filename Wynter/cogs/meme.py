@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-import requests
+import aiohttp
+import asyncio
 import json
 import os
 from dotenv import load_dotenv
@@ -14,20 +15,15 @@ class Meme(commands.Cog):
         self.bot = bot
 
     @commands.command(name = 'changemymind', pass_context=True, help = 'Generates a change my mind meme using imgur')
-    async def changemymind(self, ctx, *data):
-        text = ""
-        for str in data:
-            text = text + str + ' '
-        url = f"https://api.imgflip.com/caption_image?text0={text}&username={imgusr}&password={imgpw}&template_id=129242436"
-        payload={}
-        headers = {
-        'Cookie': '__cfduid=d8877b9d3f7f03d74d494201c69a043e81605576645; claim_key=eVrjsNJKFzqzCYRCMTSxdpSh5BnGPLdV'
-        }
-        response = requests.request("GET", url, headers=headers, data=payload)
-
-        data = json.loads(response.text)
-        url = data["data"]["url"]
-        return await ctx.send(url)
+    @commands.cooldown(1,5, commands.BucketType.user)
+    async def changemymind(self, ctx, *, text):
+        params = {'text0': text, 'username': imgusr, 'password': imgpw, 'template_id': '129242436'}
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://api.imgflip.com/caption_image", params = params) as resp:
+                data = await resp.text()
+                data = json.loads(data)
+                url = data["data"]["url"]
+                return await ctx.send(url)
 
 def setup(bot):
     bot.add_cog(Meme(bot))

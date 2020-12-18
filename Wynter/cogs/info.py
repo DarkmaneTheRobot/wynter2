@@ -6,18 +6,21 @@ class Info(commands.Cog):
         self.bot = bot
     
     @commands.command(name = 'info', pass_context=True, help = 'Shows bot info')
+    @commands.cooldown(1,5, commands.BucketType.user)
     async def info(self, ctx):
-        embed = discord.Embed(title = "Bot Information", description = "Libraries used:\nPython v3.9.0 \nDiscord.py v1.5.1 \nPyMySQL v0.10.1 \n\nAdditional Credits:\nNanofaux#0621 - for helping aide me into Python. \nMurdecoi#3541 - for aiding with moderation command testing. \nSkipper:tm:#6968 - for their suggestion of the RP scenario generator. \nAll the beta testers listed in the `testers` command", color=0x00ff00)
+        embed = discord.Embed(title = "Bot Information", description = "Libraries used:\nPython v3.9.0 \nDiscord.py v1.6.0a \nPyMySQL v0.10.1 \n\nAdditional Credits:\nNanofaux#0621 - for helping aide me into Python. \nMurdecoi#3541 - for aiding with moderation command testing. \nSkipper:tm:#6968 - for their suggestion of the RP scenario generator. \nAll the beta testers listed in the `testers` command", color=0x00ff00)
         embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
         return await ctx.send(embed = embed)
     
     @commands.command(name = 'testers', pass_context=True, help = 'Shows a list of beta testers')
+    @commands.cooldown(1,5, commands.BucketType.user)
     async def testers(self, ctx):
         embed = discord.Embed(title = "Thank you to everyone listed here!", description = "BETA TESTERS: \n\nBananaBoopCrackers#2002 \nFinnick The Fennec Fox#4334 \nMurdecoi#3541 \nNexivis#8546 \nNootTheNewt#0060 \nSia#3027 \n:six_pointed_star:Mrs-copper-pp:scorpius:#2688 \nMay The Red Panda Cat#8986 \nNitrax#8972 \nRag Darkheart#5080 \nruby_rose_wolf#0568 \nSkipper#6968 \nSugerrion#4086 \nTyler Furrison#2454", color=0x00ff00)
         embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
         return await ctx.send(embed = embed)
     
     @commands.command(name = 'ping', pass_context=True, help= 'Shows the bot latency connecting to discord.')
+    @commands.cooldown(1,5, commands.BucketType.user)
     async def ping(self,ctx):
         ping = self.bot.latency * 1000
         embed = discord.Embed(title = "Pong!", description = '___Took {0}'.format(round(ping, 1)) + "ms___" , color=0x00ff00)
@@ -25,12 +28,14 @@ class Info(commands.Cog):
         return await ctx.send(embed = embed)
 
     @commands.command(name = 'invite', pass_context=True, help= 'Shows the bot\'s invite.')
+    @commands.cooldown(1,5, commands.BucketType.user)
     async def invite(self,ctx):
         embed = discord.Embed(title = "Here ya go!", description = "My invite is https://furrycentr.al/add" , color=0x00ff00)
         embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
         return await ctx.send(embed = embed)
     
     @commands.command(name = 'avatar', pass_context=True, help= 'Shows the profile picture of a mentioned user.', aliases=["pfp"])
+    @commands.cooldown(1,5, commands.BucketType.user)
     @commands.guild_only()
     async def avatar(self,ctx, user : discord.Member):
         embed = discord.Embed(title = f"{user.display_name}'s Profile Picture", color=0x00ff00)
@@ -40,6 +45,7 @@ class Info(commands.Cog):
 
     @commands.command(name = 'serverinfo', pass_context= True, help='Shows information about the current guild')
     @commands.guild_only()
+    @commands.cooldown(1,5, commands.BucketType.user)
     async def serverinfo(self,ctx):
         embed = discord.Embed(title=ctx.message.guild.name, color=0x00ff00)
         embed.add_field(name="Owner", value=ctx.message.guild.owner, inline=False)
@@ -50,6 +56,7 @@ class Info(commands.Cog):
     
     @commands.command(name = 'userinfo', pass_context= True, help='Shows information about the current guild', aliases = ['profile'])
     @commands.guild_only()
+    @commands.cooldown(1,5, commands.BucketType.user)
     async def userinfo(self,ctx, user: discord.Member):
         rolelist = ''
         for role in user.roles:
@@ -64,6 +71,7 @@ class Info(commands.Cog):
 
     @commands.command(name='report', pass_context = True, help='Report a bug to the bot\'s developers')
     @commands.guild_only()
+    @commands.cooldown(1,120, commands.BucketType.user)
     async def report(self, ctx, *report):
         text = ""
         url = ""
@@ -84,6 +92,7 @@ class Info(commands.Cog):
     
     @commands.command(name='feedback', pass_context = True, help='Send feedback to the bot\'s developers')
     @commands.guild_only()
+    @commands.cooldown(1,120, commands.BucketType.user)
     async def feedback(self, ctx, *report):
         text = ""
         url = ""

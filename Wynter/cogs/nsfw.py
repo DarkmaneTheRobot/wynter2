@@ -4,12 +4,14 @@ import http.client
 import mimetypes
 import json
 
-class Meme(commands.Cog):
+class NSFW(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
 
     @commands.command(name = 'gay', pass_context=True, help = 'Get a gay yiff image')
     @commands.guild_only()
+    @commands.is_nsfw()
+    @commands.cooldown(1,5, commands.BucketType.user)
     async def gay(self, ctx):
         conn = http.client.HTTPSConnection("api.furrycentr.al")
         payload = ''
@@ -27,4 +29,4 @@ class Meme(commands.Cog):
         return await ctx.send(embed = embed)
 
 def setup(bot):
-    bot.add_cog(Meme(bot))
+    bot.add_cog(NSFW(bot))

@@ -15,13 +15,15 @@ DBUSER = os.getenv('DBUSER')
 DBPW = os.getenv('DBPW')
 DB = os.getenv('DB')
 
-# Connect to the database
-connection = pymysql.connect(host=DBHOST,
-                             user=DBUSER,
-                             password=DBPW,
-                             db=DB,
-                             charset='utf8mb4',
-                             cursorclass=pymysql.cursors.DictCursor)
+def connecttodb():
+    # Connect to the database
+    connection = pymysql.connect(host=DBHOST,
+                                user=DBUSER,
+                                password=DBPW,
+                                db=DB,
+                                charset='utf8mb4',
+                                cursorclass=pymysql.cursors.DictCursor)
+    return connection
 
 class Moderation(commands.Cog):
     def __init__(self,bot):
@@ -41,6 +43,7 @@ class Moderation(commands.Cog):
         for txt in data:
             reason = reason + txt + ' '
         try:
+            connection = connecttodb()
             with connection.cursor() as cursor:
                 # Read a single record
                 guild = ctx.message.guild
@@ -48,6 +51,7 @@ class Moderation(commands.Cog):
                 cursor.execute(sql, (guild.name,guild.id,user.display_name,ctx.message.author.display_name,"KICK", reason, str(user.id)))
                 connection.commit()
                 print(f"Sucess! Added a punishment to {user.display_name}!")
+                connection.close()
         except Exception as err:
             print(f"{err} when adding a punishment for {user.display_name} to the database")
         embed = discord.Embed(title = "Kicked!", description = f"You have been kicked from {ctx.message.guild.name}! \n\nReason given:\n{reason}" , color=0x00ff00)
@@ -78,6 +82,7 @@ class Moderation(commands.Cog):
         for txt in data:
             reason = reason + txt + ' '
         try:
+            connection = connecttodb()
             with connection.cursor() as cursor:
                 # Read a single record
                 guild = ctx.message.guild
@@ -85,6 +90,7 @@ class Moderation(commands.Cog):
                 cursor.execute(sql, (guild.name,guild.id,user.display_name,ctx.message.author.display_name,"BAN", reason, str(user.id)))
                 connection.commit()
                 print(f"Sucess! Added a punishment to {user.display_name}!")
+                connection.close()
         except Exception as err:
             print(f"{err} when adding a punishment for {user.display_name} to the database")
         embed = discord.Embed(title = "Banned!", description = f"You have been banned from {ctx.message.guild.name}! \n\nReason given:\n{reason}" , color=0x00ff00)
@@ -104,6 +110,7 @@ class Moderation(commands.Cog):
     
     @commands.command(name = 'hackban', pass_context=True, help = 'Bans user(s) that aren\'t in the guild.')
     @commands.has_guild_permissions(ban_members= True)
+    @commands.cooldown(1,120, commands.BucketType.user)
     async def hackban(self, ctx,*ids):
         await ctx.message.delete()
         if len(ids) > 50:
@@ -143,6 +150,7 @@ class Moderation(commands.Cog):
         for txt in data:
             reason = reason + txt + ' '
         try:
+            connection = connecttodb()
             with connection.cursor() as cursor:
                 # Read a single record
                 guild = ctx.message.guild
@@ -150,6 +158,7 @@ class Moderation(commands.Cog):
                 cursor.execute(sql, (guild.name,guild.id,user.display_name,ctx.message.author.display_name,"WARN", reason, str(user.id)))
                 connection.commit()
                 print(f"Sucess! Added a punishment to {user.display_name}!")
+                connection.close()
         except Exception as err:
             print(f"{err} when adding a punishment for {user.display_name} to the database")
         embed = discord.Embed(title = "Warned!", description = f"You have been warned on {ctx.message.guild.name}! \n\nReason given: \n{reason}" , color=0x00ff00)
@@ -169,7 +178,7 @@ class Moderation(commands.Cog):
         amount = amount + 1
         if amount > 100:
             amount = 100
-        await ctx.message.channel.purge(limit = amount)
+        await ctx.message.channel.purge(limit = amount, check = lambda msg: not msg.pinned)
         embed = discord.Embed(title = "Messages Purged!", description = f"{ctx.message.author.display_name} has deleted {amount} messages from {ctx.message.channel.mention}!" , color=0x00ff00)
         embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
         channel = discord.utils.get(ctx.message.guild.text_channels, name='message_logs')
@@ -181,6 +190,7 @@ class Moderation(commands.Cog):
     @commands.has_guild_permissions(kick_members = True)
     async def lookup(self, ctx, user: discord.Member):
         try:
+            connection = connecttodb()
             with connection.cursor() as cursor:
                 # Read a single record
                 sql = "SELECT * FROM `punishments` WHERE `offenderid`=%s AND serverid = %s"
@@ -195,6 +205,7 @@ class Moderation(commands.Cog):
                     punishments = punishments + "**" + p['type'] + "**" + ": " + p['reason'] + "\n\nGiven by: \n" + p['moderator'] + "\n\n"
             embed = discord.Embed(title = f"{user.display_name}'s punishments!", description = punishments , color=0x00ff00)
             embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069 | {pcount} total punishments')
+            connection.close()
             return await ctx.send(embed=embed)
         except Exception as err:
             print(err)
@@ -213,6 +224,7 @@ class Moderation(commands.Cog):
         for txt in data:
             reason = reason + txt + ' '
         try:
+            connection = connecttodb()
             with connection.cursor() as cursor:
                 # Read a single record
                 guild = ctx.message.guild
@@ -220,6 +232,7 @@ class Moderation(commands.Cog):
                 cursor.execute(sql, (guild.name,guild.id,user.display_name,ctx.message.author.display_name,"MUTE", reason, str(user.id)))
                 connection.commit()
                 print(f"Sucess! Added a punishment to {user.display_name}!")
+                connection.close()
         except Exception as err:
             print(f"{err} when adding a punishment for {user.display_name} to the database")
         embed = discord.Embed(title = "Muted!", description = f"You have been muted on {ctx.message.guild.name}! \n\nReason given: \n{reason}" , color=0x00ff00)
