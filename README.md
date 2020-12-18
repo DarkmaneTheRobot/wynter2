@@ -10,5 +10,5 @@ To run the development build of discord.py, do the following:
 ```bash
 $ git clone https://github.com/Rapptz/discord.py
 $ cd discord.py
-$ python3 -m pip install -U .[voice]
+$ python3 -m pip install -U .
 ```
