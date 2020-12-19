@@ -134,10 +134,12 @@ async def on_message(msg):
         except Exception as err:
             print(err)
         #Club Floof Stuff
-    if msg.author.bot and msg.channel.id == 783684179203981332 or msg.channel.id == 783684180197507092:
+    if msg.author.bot and msg.channel.id == 783684179203981332 or msg.author.bot and msg.channel.id == 783684180197507092:
         if msg.author.id == 159985870458322944 or msg.author.id == 339254240012664832 or msg.author.id == 772205583536881694:
             return
         if "Bot messages aren't allowed here" in msg.content:
+            return
+        if "VOTE TIME" in msg.content:
             return
         if msg.content == "Thanks for paying respects":
             return
