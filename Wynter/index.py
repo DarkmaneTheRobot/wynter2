@@ -136,11 +136,11 @@ async def on_message(msg):
             print(err)
         #Club Floof Stuff
     if msg.author.bot and msg.channel.id == 783684179203981332 or msg.author.bot and msg.channel.id == 783684180197507092:
-        if msg.author.id == 159985870458322944 or msg.author.id == 339254240012664832 or msg.author.id == 772205583536881694:
+        if msg.author.id == 159985870458322944 or msg.author.id == 339254240012664832 or msg.author.id == 772205583536881694 or msg.author.id == 785054742698393620:
             return
         if "Bot messages aren't allowed here" in msg.content:
             return
-        if "VOTE TIME" in msg.content:
+        if "__VOTE TIME__" in msg.content:
             return
         if msg.content == "Thanks for paying respects":
             return
@@ -305,7 +305,7 @@ async def on_user_update(before, after):
     changed = ""
     if not before.avatar_url == after.avatar_url:
         print ("Avatar Change")
-        changed = changed + "User avatar changed!\n\n"
+        changed = changed + f"User avatar changed!\n\n [Reverse Image Search](https://images.google.com/searchbyimage?image_url={after.avatar_url})\n\n"
     if not before.name == after.name:
         print ("Name Change")
         changed = changed + f"User name changed!\n\n New name:\n{after.name} \nOld name:\n{before.name}\n\n"
@@ -319,6 +319,9 @@ async def on_user_update(before, after):
             embed.set_footer(text = f'{after.name}#{after.discriminator} | Made by Darkmane Arweinydd#0069')
             channel = discord.utils.get(guild.text_channels, name='user_logs')
             await channel.send(embed = embed)
+            if "User avatar changed" in changed:
+                channel = discord.utils.get(guild.text_channels, name='pfp_logging')
+                await channel.send(embed = embed)
 
 @client.event
 async def on_command_error(ctx,err):
