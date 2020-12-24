@@ -48,8 +48,9 @@ def get_prefix(bot,msg):
         prefix = '!'
         return commands.when_mentioned_or(prefix)(bot,msg)
         
-
-client = commands.Bot(command_prefix=get_prefix, case_insensitive = True)
+intents = discord.Intents.default()
+intents.members = True
+client = commands.Bot(command_prefix=get_prefix, case_insensitive = True, intents = intents)
 
 @client.command(name='prefix', help= 'Sets server prefix')
 @commands.has_guild_permissions(manage_guild = True)
@@ -298,6 +299,26 @@ async def on_guild_channel_update(before, after):
         embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
         channel = discord.utils.get(before.guild.text_channels, name='channel_logging')
         await channel.send(embed = embed)
+
+@client.event
+async def on_user_update(before, after):
+    changed = ""
+    if not before.avatar_url == after.avatar_url:
+        print ("Avatar Change")
+        changed = changed + "User avatar changed!\n\n"
+    if not before.name == after.name:
+        print ("Name Change")
+        changed = changed + f"User name changed!\n\n New name:\n{after.name} \nOld name:\n{before.name}\n\n"
+    if not before.discriminator == after.discriminator:
+        print("Discriminator change")
+        changed = changed + f"User discriminator changed!\n\n Old Discriminator:\n #{before.discriminator} \nNew Discriminator: \n#{after.discriminator}"
+    for guild in client.guilds:
+        if guild.get_member(before.id) is not None:
+            embed = discord.Embed(title = "User Info Updated!", description = f"{changed}" , color=0x00ff00)
+            embed.set_image(url = after.avatar_url)
+            embed.set_footer(text = f'{after.name}#{after.discriminator} | Made by Darkmane Arweinydd#0069')
+            channel = discord.utils.get(guild.text_channels, name='user_logs')
+            await channel.send(embed = embed)
 
 @client.event
 async def on_command_error(ctx,err):
