@@ -301,6 +301,44 @@ async def on_guild_channel_update(before, after):
         await channel.send(embed = embed)
 
 @client.event
+async def on_member_join(user):
+    embed = discord.Embed(title = "Member joined!", description = f"{user.display_name} has joined the guild" , color=0x00ff00)
+    embed.set_footer(text = f'{user.name}#{user.discriminator} | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(user.guild.text_channels, name='user_logs')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_member_remove(user):
+    embed = discord.Embed(title = "Member left!", description = f"{user.display_name} has left the guild." , color=0x00ff00)
+    embed.set_footer(text = f'{user.name}#{user.discriminator} | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(user.guild.text_channels, name='user_logs')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_member_update(before, after):
+    cvar = False
+    changed = ""
+    if not before.display_name == after.display_name:
+        print ("Name Change")
+        cvar = True
+        changed = changed + f"User display name changed!\n\n New name:\n{after.display_name} \nOld name:\n{before.display_name}\n\n"
+    if not len(before.roles) == len(after.roles):
+        print("Roles change")
+        cvar = True
+        changed = changed + f"User roles changed!\n\n Old Roles:\n"
+        for role in before.roles:
+            changed = changed + role.mention
+        changed = changed + "\n\nNew Roles:\n"
+        for role in after.roles:
+            changed = changed + role.mention
+    if cvar == True:
+        embed = discord.Embed(title = "User Info Updated!", description = f"{after.mention} \n\n{changed}" , color=0x00ff00)
+        embed.set_image(url = after.avatar_url)
+        embed.set_footer(text = f'{after.name}#{after.discriminator} | Made by Darkmane Arweinydd#0069')
+        channel = discord.utils.get(before.guild.text_channels, name='user_logs')
+        await channel.send(embed = embed)
+
+@client.event
 async def on_user_update(before, after):
     changed = ""
     if not before.avatar_url == after.avatar_url:
@@ -314,7 +352,7 @@ async def on_user_update(before, after):
         changed = changed + f"User discriminator changed!\n\n Old Discriminator:\n #{before.discriminator} \nNew Discriminator: \n#{after.discriminator}"
     for guild in client.guilds:
         if guild.get_member(before.id) is not None:
-            embed = discord.Embed(title = "User Info Updated!", description = f"{changed}" , color=0x00ff00)
+            embed = discord.Embed(title = "User Info Updated!", description = f"{after.mention} \n\n{changed}" , color=0x00ff00)
             embed.set_image(url = after.avatar_url)
             embed.set_footer(text = f'{after.name}#{after.discriminator} | Made by Darkmane Arweinydd#0069')
             channel = discord.utils.get(guild.text_channels, name='user_logs')
@@ -322,6 +360,14 @@ async def on_user_update(before, after):
             if "User avatar changed" in changed:
                 channel = discord.utils.get(guild.text_channels, name='pfp_logging')
                 await channel.send(embed = embed)
+
+@client.event
+async def on_disconnect():
+    print("Connection lost! Attempting to reconnect!")
+    try:
+        client.run(TOKEN)
+    except Exception as e:
+        print (f"Failed to reconnect: {e}")
 
 @client.event
 async def on_command_error(ctx,err):
