@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+import time 
+import math
 
 class Info(commands.Cog):
     def __init__(self,bot):
@@ -22,10 +24,17 @@ class Info(commands.Cog):
     @commands.command(name = 'ping', pass_context=True, help= 'Shows the bot latency connecting to discord.')
     @commands.cooldown(1,5, commands.BucketType.user)
     async def ping(self,ctx):
-        ping = self.bot.latency * 1000
-        embed = discord.Embed(title = "Pong!", description = '___Took {0}'.format(round(ping, 1)) + "ms___" , color=0x00ff00)
+        ping = math.floor(self.bot.latency * 1000)
+        before = time.monotonic()
+        embed = discord.Embed(title = "Ping!", description = 'Getting info, please wait...', color=0x00ff00)
         embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
-        return await ctx.send(embed = embed)
+        msg = await ctx.send(embed = embed)
+        latency = math.floor((time.monotonic() - before) * 1000)
+        embed = discord.Embed(title = "Ping!", description = f'Pong! \n\nConnection to discord: \n{ping}ms\nMessage Latency:\n{latency}ms', color=0x00ff00)
+        embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
+        await msg.edit(embed=embed)
+
+
 
     @commands.command(name = 'invite', pass_context=True, help= 'Shows the bot\'s invite.')
     @commands.cooldown(1,5, commands.BucketType.user)

@@ -75,6 +75,14 @@ async def test(ctx, prefix):
         return await ctx.send(f"My current prefix is {prefix} - I was unable to change it at this time. \nError: {err}")
 
 @client.event
+async def on_command(ctx):
+    blacklistedids = [703382839491821568, 782770244174610432, 763107932753362995, 717428892205580408]
+    if ctx.author.id in blacklistedids:
+        await ctx.author.send("You are banned from using this bot.")
+        return
+    
+
+@client.event
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
     while True:
@@ -134,11 +142,41 @@ async def on_message(msg):
                     return await msg.channel.send("I agree with you. Doubts are to be had.", reference = msg)
         except Exception as err:
             print(err)
-        #Club Floof Stuff
+
+    #Wolf Pack Stuff
+    if "http" in msg.content and msg.guild.id == 793961645856391169 or "www." in msg.content and msg.guild.id == 793961645856391169:
+        role = discord.utils.get(msg.guild.roles, id= 795455494755975178)
+        if role in msg.author.roles:
+            return
+        if "tenor.com" in msg.content or "cdn.disccordapp.com"  in msg.content or "discord.com" in msg.content or "youtube.com" in msg.content or "google.com" in msg.content or "giphy.com" in msg.content or "spotify.com" in msg.content or "roblox.com" in msg.content or "t.me" in msg.content or "twitter.com" in msg.content or "instagram.com" in msg.content :
+            return
+        else:
+            await msg.delete()
+            msg = await msg.channel.send(f"Hey {msg.author.mention}, links aren't allowed in this discord unless specifically approved. Thanks! \n\nThis message will self-destruct in 10 seconds.")
+            await asyncio.sleep(10)
+            await msg.delete()
+    
+    #Club Floof Stuff
+    
+    if "http" in msg.content and msg.guild.id == 725201209358549012 or "www." in msg.content and msg.guild.id == 725201209358549012:
+        role = discord.utils.get(msg.guild.roles, id= 783683964232663090)
+        if role in msg.author.roles:
+            return
+        if "tenor.com" in msg.content or "cdn.disccordapp.com"  in msg.content or "discord.com" in msg.content or "toyhou.se" in msg.content or "reddit.com" in msg.content or "youtube.com" in msg.content or "google.com" in msg.content or "giphy.com" in msg.content or "spotify.com" in msg.content or "roblox.com" in msg.content or "t.me" in msg.content or "twitter.com" in msg.content or "instagram.com" in msg.content :
+            return
+        if msg.channel.id == 783684199311605760 or msg.channel.id == 794719795957202944 or msg.channel.id == 794720350343790632:
+            return
+        else:
+            await msg.delete()
+            msg = await msg.channel.send(f"Hey {msg.author.mention}, links aren't allowed in this discord unless specifically approved. Thanks! \n\nThis message will self-destruct in 10 seconds.")
+            await asyncio.sleep(10)
+            await msg.delete()
     if msg.author.bot and msg.channel.id == 783684179203981332 or msg.author.bot and msg.channel.id == 783684180197507092:
         if msg.author.id == 159985870458322944 or msg.author.id == 339254240012664832 or msg.author.id == 772205583536881694 or msg.author.id == 785054742698393620:
             return
         if "Bot messages aren't allowed here" in msg.content:
+            return
+        if "links aren't allowed in this discord" in msg.content:
             return
         if "__VOTE TIME__" in msg.content:
             return
@@ -173,7 +211,7 @@ async def on_message(msg):
     
     await client.process_commands(msg)
 
-initial_extensions = ['info', 'fun', 'meme', 'moderation', 'nsfw', 'christmas']
+initial_extensions = ['info', 'fun', 'meme', 'moderation', 'nsfw', 'christmas', 'fursona']
 
 if __name__ == "__main__":
     for extension in initial_extensions:
@@ -214,6 +252,23 @@ async def on_message_edit(oldmessage, newmessage):
     embed = discord.Embed(title = "Message Edited!", description = f"Original Message: \n{oldmessage.content} \n\nNew Message: \n{newmessage.content}" , color=0x00ff00)
     embed.set_footer(text = f'Wynter 2.0 | Message sent by {oldmessage.author.display_name}')
     channel = discord.utils.get(oldmessage.guild.text_channels, name='message_logs')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_member_ban(guild, user):
+    await asyncio.sleep(5)
+    entries = await guild.audit_logs(limit=1, action=discord.AuditLogAction.ban).flatten()
+    event = entries[0]
+    embed = discord.Embed(title = "Member Banned!", description = f"{user.name} was banned by {event.user.display_name} \n\nReason given: \n{event.reason}" , color=0x00ff00)
+    embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(guild.text_channels, name='case_logs')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_member_unban(guild, user):
+    embed = discord.Embed(title = "Member Ban Revoked!", description = f"{user.name} has had their ban revoked!" , color=0x00ff00)
+    embed.set_footer(text = f'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(guild.text_channels, name='case_logs')
     await channel.send(embed = embed)
 
 @client.event
@@ -302,6 +357,12 @@ async def on_guild_channel_update(before, after):
 
 @client.event
 async def on_member_join(user):
+    if user.guild.id == 754816860133916822:
+        channel = discord.utils.get(user.guild.text_channels, name='register')
+        embed = discord.Embed(title = "Hi there!", description = f"Hey {user.display_name}! Please register to the chat by typing `!register` in chat :)" , color=0x00ff00)
+        embed.set_footer(text = f'{user.name}#{user.discriminator} | Made by Darkmane Arweinydd#0069')
+        await channel.send(f"{user.mention}", embed = embed)
+
     embed = discord.Embed(title = "Member joined!", description = f"{user.display_name} has joined the guild" , color=0x00ff00)
     embed.set_footer(text = f'{user.name}#{user.discriminator} | Made by Darkmane Arweinydd#0069')
     channel = discord.utils.get(user.guild.text_channels, name='user_logs')
@@ -316,6 +377,15 @@ async def on_member_remove(user):
 
 @client.event
 async def on_member_update(before, after):
+    role = discord.utils.get(before.guild.roles, id= 754820807896596520)
+
+    if role not in before.roles and role in after.roles:
+        embed = discord.Embed(title = "Welcome!", description = f"{after.mention} has joined! \n\nPlease welcome them to the guild! \n\nFeel free to get some roles from <#756597666011676742>" , color=0x00ff00)
+        embed.set_footer(text = 'New Member! | Made by Darkmane Arweinydd#0069')
+        channel = discord.utils.get(before.guild.text_channels, id= 754816860133916825)
+        await channel.send("<@&755152376700076032>",embed = embed)
+        
+
     cvar = False
     changed = ""
     if not before.display_name == after.display_name:
@@ -333,10 +403,26 @@ async def on_member_update(before, after):
             changed = changed + role.mention
     if cvar == True:
         embed = discord.Embed(title = "User Info Updated!", description = f"{after.mention} \n\n{changed}" , color=0x00ff00)
-        embed.set_image(url = after.avatar_url)
+        embed.set_thumbnail(url = after.avatar_url)
         embed.set_footer(text = f'{after.name}#{after.discriminator} | Made by Darkmane Arweinydd#0069')
         channel = discord.utils.get(before.guild.text_channels, name='user_logs')
         await channel.send(embed = embed)
+
+@client.event
+async def on_reaction_add(reaction, user):
+    embed = discord.Embed(title = "Reaction Added!", description = f"Reaction added by {user.mention} \n\n{reaction.emoji}" , color=0x00ff00)
+    embed.set_thumbnail(url = user.avatar_url)
+    embed.set_footer(text = f'{user.name}#{user.discriminator} | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(reaction.message.guild.text_channels, name='reaction_logging')
+    await channel.send(embed = embed)
+
+@client.event
+async def on_reaction_remove(reaction, user):
+    embed = discord.Embed(title = "Reaction Removed!", description = f"Reaction removed by {user.mention} \n\n{reaction.emoji}" , color=0x00ff00)
+    embed.set_thumbnail(url = user.avatar_url)
+    embed.set_footer(text = f'{user.name}#{user.discriminator} | Made by Darkmane Arweinydd#0069')
+    channel = discord.utils.get(reaction.message.guild.text_channels, name='reaction_logging')
+    await channel.send(embed = embed)
 
 @client.event
 async def on_user_update(before, after):
@@ -353,25 +439,27 @@ async def on_user_update(before, after):
     for guild in client.guilds:
         if guild.get_member(before.id) is not None:
             embed = discord.Embed(title = "User Info Updated!", description = f"{after.mention} \n\n{changed}" , color=0x00ff00)
-            embed.set_image(url = after.avatar_url)
             embed.set_footer(text = f'{after.name}#{after.discriminator} | Made by Darkmane Arweinydd#0069')
             channel = discord.utils.get(guild.text_channels, name='user_logs')
-            await channel.send(embed = embed)
             if "User avatar changed" in changed:
                 channel = discord.utils.get(guild.text_channels, name='pfp_logging')
-                await channel.send(embed = embed)
+                embed.set_image(url = after.avatar_url)
+            else:
+                embed.set_thumbnail(url = after.avatar_url)
+            await channel.send(embed = embed)
+            
+                
 
 @client.event
-async def on_disconnect():
-    print("Connection lost! Attempting to reconnect!")
-    try:
-        client.run(TOKEN)
-    except Exception as e:
-        print (f"Failed to reconnect: {e}")
+async def on_resumed():
+    print('reconnected')
 
 @client.event
 async def on_command_error(ctx,err):
     if isinstance(err, commands.errors.CommandOnCooldown):
+        if ctx.message.author.id == 512608629992456192:
+            await ctx.reinvoke()
+            return
         embed = discord.Embed(title = "Cooldown!", description = f"You cannot run the following command: `{ctx.message.content}` \n\nas it is currently on cooldown - try again in {err.retry_after} seconds!" , color=0x00ff00)
         embed.set_thumbnail(url = "https://freeiconshop.com/wp-content/uploads/edd/cross-flat.png")
         embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
@@ -397,4 +485,4 @@ async def on_command_error(ctx,err):
             embed.set_thumbnail(url = "https://freeiconshop.com/wp-content/uploads/edd/cross-flat.png")
             embed.set_footer(text = 'Wynter 2.0 | Made by Darkmane Arweinydd#0069')
             return await ctx.send(embed = embed, reference = ctx.message)
-client.run(TOKEN)
+client.run(TOKEN, reconnect = True)

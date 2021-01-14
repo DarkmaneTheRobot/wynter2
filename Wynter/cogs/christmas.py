@@ -31,7 +31,7 @@ class Christmas(commands.Cog):
         duration = christmas - today
         print(f"It is {duration.total_seconds()} seconds 'till christmas!")
         await ctx.send(f":e_mail: {ctx.message.author.mention} Check your DMs!")
-        if today.month == 12 and today.day <= 25:
+        if today.month == 12 and today.day <= 31:
             await ctx.message.author.send("I wonder what Santa Paws will bring! \n\nCheck back at 8AM UTC on Christmas Day to find out!")
             await asyncio.sleep(duration.total_seconds())
             await ctx.message.author.send(f"*You wake up on Christmas morning, a smile on your face as you check underneath the tree, finding a present labeled from Santa Paws! \n\nExcited, you open it, revealing what's inside: A brand new {random.choice(items)} - just for you!")
